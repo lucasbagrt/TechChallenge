@@ -61,6 +61,7 @@ class Program
         if (Key == key)
         {
             Console.WriteLine("Chave " + key);
+            Console.WriteLine("Tentativas " + tested.Count);
             return await Task.FromResult(true);
         }
 
