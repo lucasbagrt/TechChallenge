@@ -1,4 +1,4 @@
-﻿using static System.Net.Mime.MediaTypeNames;
+﻿using System.Diagnostics;
 
 class Program
 {
@@ -9,9 +9,10 @@ class Program
         var vowels = "A,E,I,O,U,Á,É,Í,Ó,Ú,À,È,Ì,Ò,Ù,Â,Ê,Î,Ô,Û,Ã,Õ,Ä,Ë,Ï,Ö,Ü";
         var vowelsList = vowels.Split(",");
         var r = new Random();
+        var stopwatch = new Stopwatch();
 
         Key = GenerateRandomKey(r, vowelsList.ToArray());        
-
+        stopwatch.Start();
 
         while (true)
         {
@@ -20,40 +21,44 @@ class Program
                 var randomNum = r.Next(1, 1001);
                 var key = $"{(vog + "").ToLower()}{randomNum}";
 
-                if (await SendKey(tested, key))
+                Console.WriteLine(key);
+                if (await SendKey(tested, key, stopwatch))
                     Environment.Exit(0);
             });
 
             vowelsList.AsParallel().ForAll(async vog =>
             {
                 var randomNum = r.Next(1, 1001);
-
                 var key = $"{randomNum}{(vog + "").ToLower()}";
-                if (await SendKey(tested, key))
+
+                Console.WriteLine(key);
+                if (await SendKey(tested, key, stopwatch))
                     Environment.Exit(0);
             });
 
             vowelsList.AsParallel().ForAll(async vog =>
             {
                 var randomNum = r.Next(1, 1001);
-
                 var key = $"{(vog + "").ToUpper()}{randomNum}";
-                if (await SendKey(tested, key))
+
+                Console.WriteLine(key);
+                if (await SendKey(tested, key, stopwatch))
                     Environment.Exit(0);
             });
 
             vowelsList.AsParallel().ForAll(async vog =>
-            {                
+            {
                 var randomNum = r.Next(1, 1001);
-
                 var key = $"{randomNum}{(vog + "").ToUpper()}";
-                if (await SendKey(tested, key))
+
+                Console.WriteLine(key);
+                if (await SendKey(tested, key, stopwatch))
                     Environment.Exit(0);
             });
         }
     }
 
-    public static async Task<bool> SendKey(List<string> tested, string key)
+    public static async Task<bool> SendKey(List<string> tested, string key, Stopwatch stopwatch)
     {
         if (tested.Contains(key))
             return await Task.FromResult(false);
@@ -62,6 +67,7 @@ class Program
         {
             Console.WriteLine("Chave " + key);
             Console.WriteLine("Tentativas " + tested.Count);
+            Console.WriteLine("Tempo " + (stopwatch.ElapsedMilliseconds / 1000) + " seg");
             return await Task.FromResult(true);
         }
 
@@ -70,13 +76,12 @@ class Program
     }
 
     public static string GenerateRandomKey(Random r, string[] vowels)
-    {        
-        Random random = new Random();
-        var randomNum = random.Next(1, 1001);        
+    {                
+        var randomNum = r.Next(1, 1001);        
 
-        var selectedVowel = vowels[random.Next(vowels.Length)];
-        bool addAtBeginning = random.Next(2) == 0;
-        bool upperCase = random.Next(2) == 0;
+        var selectedVowel = vowels[r.Next(vowels.Length)];
+        bool addAtBeginning = r.Next(2) == 0;
+        bool upperCase = r.Next(2) == 0;
 
         var randomKey = addAtBeginning ? 
                selectedVowel + randomNum.ToString() :
